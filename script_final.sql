@@ -1,0 +1,418 @@
+﻿CREATE DATABASE PROJECT_QLCUAHANG
+GO
+USE PROJECT_QLCUAHANG
+GO
+-- =========================== TABLE ===================================
+--1
+CREATE TABLE t_NHACC (
+	MA_NCC		varchar(5)		PRIMARY KEY,
+	TEN_NCC		nvarchar(20)	NOT NULL,		
+	SDT			varchar(15)		NOT NULL,
+	DIA_CHI		nvarchar(50)	NOT NULL,
+	EMAIL		varchar(50),
+)
+--2
+CREATE TABLE t_NHANVIEN (
+	MA_NV		varchar(5)		PRIMARY KEY,
+	TEN_NV		nvarchar(20)	NOT NULL,
+	CHUC_VU		nvarchar(10)	NOT NULL,
+	GT			nvarchar(5)		NOT NULL,
+	NGAY_SINH	DATE,
+	SDT			varchar(15)		NOT NULL,
+	DIA_CHI		nvarchar(50),
+	EMAIL		varchar(50)		NOT NULL,
+	CCCD		varchar(15)		NOT NULL,
+)
+--3
+CREATE TABLE t_LOAISP (
+	TEN_LOAISP	varchar(10)		PRIMARY KEY,
+	VI_TRI		varchar(5)		NOT NULL,
+)
+--4
+CREATE TABLE t_SANPHAM (
+	MA_SP		varchar(5)		PRIMARY KEY,
+	TEN_SP		nvarchar(20)	NOT NULL,
+	GIA_BAN		INT				NOT NULL,
+	DON_VI		nvarchar(10)	NOT NULL,
+	SL_CON		SMALLINT		NOT NULL,
+	TEN_LOAISP	varchar(10)		NOT NULL,
+	CONSTRAINT FK_SANPHAM FOREIGN KEY(TEN_LOAISP) REFERENCES t_LOAISP(TEN_LOAISP)
+)
+--5
+CREATE TABLE t_PHIEUNHAP (
+	MA_PHIEU	varchar(5)		PRIMARY KEY,
+	TG_NHAP		DATE			NOT NULL,
+	NGUOI_GH	nvarchar(20),
+	MA_NCC		varchar(5)		NOT NULL,
+	MA_NV		varchar(5)		NOT NULL,
+	CONSTRAINT FK_PHIEUNHAP1 FOREIGN KEY(MA_NCC) REFERENCES t_NHACC(MA_NCC),
+	CONSTRAINT FK_PHIEUNHAP2 FOREIGN KEY(MA_NV) REFERENCES t_NHANVIEN(MA_NV)
+)
+--6
+CREATE TABLE t_NHAP (
+	MA_PHIEU	varchar(5)		NOT NULL,
+	MA_SP		varchar(5)		NOT NULL,
+	SL_NHAP		SMALLINT		NOT NULL,
+	GIA_NHAP	INT				NOT NULL,
+	CONSTRAINT PK_NHAP PRIMARY KEY(MA_PHIEU, MA_SP),
+	CONSTRAINT FK_NHAP1 FOREIGN KEY(MA_PHIEU) REFERENCES t_PHIEUNHAP(MA_PHIEU),
+	CONSTRAINT FK_NHAP2 FOREIGN KEY(MA_SP) REFERENCES t_SANPHAM(MA_SP)
+)
+--7
+CREATE TABLE t_THE (
+	HANG_THE	varchar(10)		PRIMARY KEY,
+	TONG_TL_YC	INT				NOT NULL,
+	MUC_UD		FLOAT			NOT NULL
+)
+--8
+CREATE TABLE t_KHACHHANG (
+	SDT_KH		varchar(15)		PRIMARY KEY,
+	TEN_KH		nvarchar(20)	NOT NULL,
+	TONG_TL		INT				DEFAULT '0',
+	HANG_THE	varchar(10),
+	CONSTRAINT FK_KHACHHANG FOREIGN KEY(HANG_THE) REFERENCES t_THE(HANG_THE)
+)
+--9
+CREATE TABLE t_HOADON (
+	MA_HD		varchar(5)		PRIMARY KEY,
+	THOI_GIAN	DATE			NOT NULL,
+	TONG_HD		INT				NOT NULL,
+	SDT_KH		varchar(15)		NOT NULL,
+	MA_NV		varchar(5)		NOT NULL,
+	CONSTRAINT FK_HOADON1 FOREIGN KEY(SDT_KH) REFERENCES t_KHACHHANG(SDT_KH),
+	CONSTRAINT FK_HOADON2 FOREIGN KEY(MA_NV) REFERENCES t_NHANVIEN(MA_NV)
+)
+--10
+CREATE TABLE t_BAN (
+	MA_HD		varchar(5)		NOT NULL,
+	MA_SP		varchar(5)		NOT NULL,
+	SL_SP		SMALLINT		NOT NULL,
+	CONSTRAINT PK_BAN PRIMARY KEY(MA_HD, MA_SP),
+	CONSTRAINT FK_BAN1 FOREIGN KEY(MA_HD) REFERENCES t_HOADON(MA_HD),
+	CONSTRAINT FK_BAN2 FOREIGN KEY(MA_SP) REFERENCES t_SANPHAM(MA_SP)
+)
+
+--11
+CREATE TABLE t_CALAMVIEC (
+	TEN_CA		varchar(10)		PRIMARY KEY,
+	GIO_BD		TINYINT			NOT NULL,
+	GIO_KT		TINYINT			NOT NULL,
+	TIEN_CONG	INT				NOT NULL,
+)
+--12
+CREATE TABLE t_CHAMCONG (
+	MA_CC		varchar(5)		PRIMARY KEY,
+	THOI_GIAN	SMALLDATETIME	NOT NULL,
+	MA_NV		varchar(5)		NOT NULL,
+	TEN_CA		varchar(10)		NOT NULL,
+	CONSTRAINT FK_CHAMCONG1 FOREIGN KEY(MA_NV) REFERENCES t_NHANVIEN(MA_NV),
+	CONSTRAINT FK_CHAMCONG2 FOREIGN KEY(TEN_CA) REFERENCES t_CALAMVIEC(TEN_CA)
+)
+--13
+CREATE TABLE t_QUYDINH (
+	MA_QD		varchar(5)		PRIMARY KEY,
+	NOI_DUNG	nvarchar(50)	NOT NULL,
+	MUC_KL		INT				NOT NULL
+)
+--14
+CREATE TABLE t_BIENBAN (
+	MA_BB		varchar(5)		PRIMARY KEY,
+	THOI_GIAN	SMALLDATETIME	NOT NULL,
+	MA_NV		varchar(5)		NOT NULL,
+	MA_QD		varchar(5)		NOT NULL,
+	CONSTRAINT FK_BIENBAN1 FOREIGN KEY(MA_NV) REFERENCES t_NHANVIEN(MA_NV),
+	CONSTRAINT FK_BIENBAN2 FOREIGN KEY(MA_QD) REFERENCES t_QUYDINH(MA_QD)
+)
+
+
+
+-- =========================== PATTERN DATA ===================================
+--1
+INSERT INTO t_NHACC VALUES
+('NCC01', 'HUCE Company', '0955055550' , '55 Giai Phong, Hai Ba Trung, Ha Noi', 'dhxdhuce@huce.edu.vn'),
+('NCC02', 'DOTA', '0392358434' , '189 Dinh Cong, Hoang Mai, Ha Noi', 'dt324work@gmail.com'),
+('NCC03', 'Hanh Nguyen', '0123345678' , '56 Long Bien, Ha Noi', 'hanhng1999@gmail.com')
+--2
+INSERT INTO t_NHANVIEN VALUES
+('NV01', 'Hoang Dinh Vinh', 'Thu ngan', 'Nam', '8/6/2003', '0913361135', 'Hoang Mai, Ha Noi', 'vinh0222066@huce.edu.vn', '03720301789'),
+('NV02', 'Truong Thanh Phuoc', 'Thu ngan', 'Nam', '1/1/2003', '0934234233', 'Hai Ba Trung, Ha Noi', 'phuoc012366@gmail.com', '03423424234'),
+('NV03', 'Pham Quang Hieu', 'Nhan vien', 'Nam', '1/2/2003', '0342342342', 'Cau Giay, Ha Noi', 'pqh2003@gmail.com', '03876832422'),
+('NV04', 'Vu Thanh Huy', 'Nhan vien', 'Nam', '1/3/2003', '0852342342', 'Dinh Cong , Hoang Mai', 'huyforwork@gmail.com', '03756768787')
+--3
+INSERT INTO t_LOAISP VALUES
+('Sua', 'A'),
+('Dau goi', 'B'),
+('Banh keo', 'C'),
+('Bot giat', 'D')
+--4
+INSERT INTO t_SANPHAM VALUES
+('BG001', 'Omo Red 1,8l', '45000', 'Chai', '43', 'Bot giat'),
+('BG002', 'Omo Comfor', '150000', 'Chai', '19', 'Bot giat'),
+('BG003', 'Omo Matic', '118000', 'Tui', '24', 'Bot giat'),
+('BG004', 'Aba 4,5kg', '143000', 'Tui', '18', 'Bot giat'),
+('BG005', 'Aba 800g', '30000', 'Tui', '25', 'Bot giat'),
+('BG006', 'Ariel 2,7l', '134000', 'Chai', '29', 'Bot giat'),
+('BK001', 'Oreo', '10000', 'Cai', '120', 'Banh keo'),
+('BK002', 'Chocopie', '98000', 'Hop', '80', 'Banh keo'),
+('BK003', 'Solite', '52000', 'Hộp', '30', 'Banh keo'),
+('BK004', 'Cosy', '124000', 'Hop', '54', 'Banh keo'),
+('BK005', 'Nabati', '8000', 'Cai', '84', 'Banh keo'),
+('BK006', 'Goute', '53000', 'Hop', '21', 'Banh keo'),
+('BK007', 'Custas', '99000', 'Hop', '56', 'Banh keo'),
+('DG001', 'Clear', '36000', 'Chai', '70', 'Dau goi'),
+('DG002', 'X-men', '38000', 'Chai', '80', 'Dau goi'),
+('DG003', 'Enchainter', '34000', 'Tui', '47', 'Dau goi'),
+('DG004', 'Dove', '29000', 'Chai', '35', 'Dau goi'),
+('S001', 'Milo', '9000', 'Hop', '150', 'Sua'),
+('S002', 'Ovaltine', '8000', 'Hop', '160', 'Sua'),
+('S003', 'Nutriboots', '11000', 'Hop', '120', 'Sua')
+--5
+INSERT INTO t_PHIEUNHAP VALUES
+('PN001', '1/2/2023', 'Tran Anh Dung', 'NCC02', 'NV02'),
+('PN002', '3/2/2023', 'Nguyen Van An', 'NCC02', 'NV01'),
+('PN003', '12/3/2023', 'Dang Ba Thanh', 'NCC03', 'NV03'),
+('PN004', '1/4/2023', 'Nguyen Minh Duc', 'NCC02', 'NV04')
+--6
+INSERT INTO t_NHAP VALUES
+('PN001', 'BG001', '80', '30000'),
+('PN001', 'BG002', '50', '120000'),
+('PN001', 'BG003', '30', '90000'),
+('PN001', 'BG004', '50', '123000'),
+('PN001', 'BG005', '75', '25000'),
+('PN001', 'BG006', '40', '134000'),
+('PN002', 'BK001', '160', '6000'),
+('PN002', 'BK002', '120', '80000'),
+('PN002', 'BK003', '60', '40000'),
+('PN002', 'BK004', '80', '110000'),
+('PN002', 'BK005', '110', '5000'),
+('PN002', 'S001', '200', '6000'),
+('PN002', 'S002', '180', '5000'),
+('PN002', 'S003', '160', '8000'),
+('PN003', 'DG001', '100', '32000'),
+('PN003', 'DG002', '100', '30000'),
+('PN003', 'DG003', '100', '27000'),
+('PN003', 'DG004', '100', '24000')
+--7
+INSERT INTO t_THE VALUES
+('DONG', '0', '0'),
+('BAC', '3000000', '0.01'),
+('VANG', '5000000', '0.03'),
+('KIMCUONG', '10000000', '0.05')
+--8
+INSERT INTO t_KHACHHANG VALUES
+('0985588838', 'Nguyen Ha Giang', '3397000', 'BAC'),
+('0348795956', 'Nguyen Anh Tuyet', '209000', 'DONG'),
+('0954135145', 'Vu Tran Tan Dung', '296000', 'DONG'),
+('0943254350', 'Nguyen Thi Ngoc Linh', '0', 'DONG')
+--9
+INSERT INTO t_HOADON VALUES
+('HD001', '10/5/2023', '449000', '0985588838', 'NV01'),
+('HD002', '10/5/2023', '248000', '0985588838', 'NV02'),
+('HD003', '11/5/2023', '206000', '0954135145', 'NV04'),
+('HD004', '11/5/2023', '209000', '0348795956', 'NV03'),
+('HD005', '11/5/2023', '90000', '0954135145', 'NV01'),
+('HD006', '12/5/2023', '2700000', '0985588838', 'NV01')
+--10
+INSERT INTO t_BAN VALUES
+('HD001', 'BG001', '1'),
+('HD001', 'BK003', '3'),
+('HD001', 'BK004', '2'),
+('HD002', 'S001', '6'),
+('HD002', 'S002', '3'),
+('HD002', 'DG001', '1'),
+('HD002', 'BG006', '1'),
+('HD003', 'BK001', '1'),
+('HD003', 'BK002', '2'),
+('HD004', 'S003', '10'),
+('HD004', 'BK007', '1'),
+('HD005', 'BG001', '2'),
+('HD006', 'BG002', '18')
+--11
+INSERT INTO t_CALAMVIEC VALUES
+('SANG', '7', '12', '110000'),
+('CHIEU', '12', '17', '110000'),
+('TOI', '17', '22', '125000'),
+('DEM', '22', '2', '112000')
+--12
+INSERT INTO t_CHAMCONG VALUES
+('CC001', '11/5/2023  7:10:00 AM', 'NV01', 'SANG'),
+('CC002', '11/5/2023  11:00:00 AM', 'NV02', 'CHIEU'),
+('CC003', '11/5/2023  5:00:00 PM', 'NV03', 'TOI'),
+('CC004', '11/5/2023  10:00:00 PM', 'NV04', 'DEM'),
+('CC005', '12/5/2023  7:00:00 AM', 'NV01', 'SANG'),
+('CC006', '12/5/2023  11:00:00 AM', 'NV02', 'CHIEU'),
+('CC007', '12/5/2023  5:00:00 PM', 'NV03', 'TOI'),
+('CC008', '12/5/2023  10:00:00 PM', 'NV04', 'DEM'),
+('CC009', '12/5/2023  7:00:00 AM', 'NV01', 'SANG'),
+('CC010', '12/5/2023  12:00:00 PM', 'NV02', 'CHIEU'),
+('CC011', '12/5/2023  5:00:00 PM', 'NV03', 'TOI'),
+('CC012', '12/5/2023  10:00:00 PM', 'NV04', 'DEM')
+--13
+INSERT INTO t_QUYDINH VALUES
+('VP01', 'Khong mac dong phuc', '30000'),
+('VP02', 'Khong deo the nhan vien', '30000'),
+('VP03', 'Thai do voi khach hang', '50000'),
+('VP04', 'Di lam muon (5p - 20p)', '15000'),
+('VP05', 'Di lam muon (tren 30p)', '50000'),
+('VP06', 'Nghi lam khong phep', '100000'),
+('VP07', 'Ve som khong phep', '60000'),
+('VP08', 'Khong nhap/xuat hoa don cho khach', '150000'),
+('VP09', 'Ra ve khong tat thiet bi dien, dong cua', '200000'),
+('VP10', 'Dung dien thoai trong ca lam', '50000')
+--14
+INSERT INTO t_BIENBAN VALUES
+('BB001', '1/6/2023  10:25:00 AM', 'NV01', 'VP01'),
+('BB002', '3/6/2023  1:25:00 PM', 'NV02', 'VP02'),
+('BB003', '4/6/2023  4:12:00 PM', 'NV02', 'VP10'),
+('BB004', '7/6/2023  8:47:00 PM', 'NV04', 'VP04'),
+('BB005', '11/6/2023  7:19:00 AM', 'NV01', 'VP04')
+
+-- ========================== FEATURE =========================
+-- 1
+-- Đưa ra các sản phẩm có giá tiền > 20K
+SELECT *
+FROM t_SANPHAM
+WHERE GIA_BAN > 20000
+-- Tìm kiếm các sản phẩm 'Sữa'
+SELECT *
+FROM t_SANPHAM
+WHERE TEN_LOAISP = N'Sua'
+
+--2 done
+--3 done
+--4 done
+--5 done
+--6
+-- Tìm vị trí mặt hàng Bột giặt
+SELECT *
+FROM t_LOAISP
+WHERE TEN_LOAISP = 'Bot giat'
+--7 done
+--8
+-- Tìm kiếm thông tin hóa đơn HD003
+SELECT *
+FROM t_HOADON AS HD
+INNER JOIN t_BAN AS B ON HD.MA_HD = B.MA_HD
+INNER JOIN t_SANPHAM AS SP ON B.MA_SP = SP.MA_SP
+WHERE HD.MA_HD = 'HD003'
+-- Tìm hóa đơn trong ngày 12/05/2023
+SELECT *
+FROM t_HOADON
+WHERE THOI_GIAN = '12/05/2023'
+-- 
+
+
+UPDATE t_HOADON 
+SET	TONG_HD =  (
+	SELECT  SUM(t_BAN.SL_SP * t_SANPHAM.GIA_BAN) AS THANH_TIEN 
+	FROM t_BAN 
+	INNER JOIN t_SANPHAM ON t_BAN.MA_SP = t_SANPHAM.MA_SP
+	WHERE t_HOADON.MA_HD = t_BAN.MA_HD
+	GROUP BY t_BAN.MA_HD 
+)
+SELECT *
+FROM t_HOADON 
+--tong tich luy
+SELECT * 
+FROM t_KHACHHANG 
+UPDATE t_KHACHHANG
+SET TONG_TL =(SELECT SUM(t_HOADON.TONG_HD)
+	FROM t_KHACHHANG AS KH1
+	INNER JOIN t_HOADON ON KH1.SDT_KH = t_HOADON.SDT_KH
+	WHERE t_KHACHHANG.SDT_KH = t_HOADON.SDT_KH
+	GROUP BY KH1.SDT_KH 
+)
+-- update hang the
+UPDATE t_KHACHHANG
+SET HANG_THE = (
+	CASE
+		WHEN t_KHACHHANG.TONG_TL BETWEEN 3000000 AND 4999999	THEN	'BAC'
+		WHEN t_KHACHHANG.TONG_TL BETWEEN 5000000 AND 9999999	THEN	'VANG'
+		WHEN t_KHACHHANG.TONG_TL > 10000000					THEN	'KIMCUONG'
+		ELSE															'DONG'
+	END
+)
+
+
+
+-- doanh thu loi nhuan
+-- von
+SELECT SUM(t_NHAP.GIA_NHAP * t_NHAP.SL_NHAP) AS VON
+FROM t_NHAP
+--doanh thu
+SELECT SUM(TONG_HD)	AS TONG_DOANH_THU 
+FROM t_HOADON 
+--lai~
+SELECT SUM((t_SANPHAM.GIA_BAN -t_NHAP.GIA_NHAP)*t_BAN.SL_SP) AS LAI
+FROM t_BAN 
+INNER JOIN t_NHAP ON t_BAN.MA_SP = t_NHAP.MA_SP 
+INNER JOIN t_SANPHAM ON t_BAN.MA_SP = t_SANPHAM.MA_SP
+-- top 5 sp ban chay nhat
+SELECT TOP 5 t_SANPHAM.TEN_SP, t_BAN.SL_SP
+FROM t_BAN
+INNER JOIN t_SANPHAM ON t_BAN.MA_SP = t_SANPHAM.MA_SP
+ORDER BY t_BAN.SL_SP DESC
+
+-- so lan cham cong nhan vien
+SELECT MA_NV,count(*) AS SO_LAN_CC
+FROM t_CHAMCONG 
+GROUP BY MA_NV
+
+--so lan vi pham
+SELECT  MA_NV,count(*) AS SO_LAN_VP
+FROM t_BIENBAN
+GROUP BY MA_NV
+--tien cong
+SELECT t_CHAMCONG.MA_NV ,SUM(t_CALAMVIEC.TIEN_CONG) AS Tong_Tien_Tong 
+FROM t_CHAMCONG
+INNER JOIN t_CALAMVIEC ON t_CHAMCONG.TEN_CA = t_CALAMVIEC.TEN_CA
+GROUP BY t_CHAMCONG.MA_NV
+
+SELECT *
+FROM t_CHAMCONG
+INNER JOIN t_CALAMVIEC ON t_CHAMCONG.TEN_CA = t_CALAMVIEC.TEN_CA
+--tien phat vi pham 
+SELECT MA_NV , SUM(t_QUYDINH.MUC_KL) AS PHAT
+FROM t_BIENBAN
+INNER JOIN t_QUYDINH ON t_BIENBAN.MA_QD = t_QUYDINH.MA_QD
+GROUP BY MA_NV
+--luong
+SELECT *,tien_cong.tien_cong - ISNULL(phat.phat,0) AS TONG_LUONG
+FROM 
+	(SELECT t_CHAMCONG.MA_NV ,SUM(t_CALAMVIEC.TIEN_CONG) AS tien_cong
+	FROM t_CHAMCONG
+	INNER JOIN t_CALAMVIEC ON t_CHAMCONG.TEN_CA = t_CALAMVIEC.TEN_CA
+	GROUP BY t_CHAMCONG.MA_NV) AS tien_cong
+FULL OUTER JOIN
+	(SELECT MA_NV , SUM(t_QUYDINH.MUC_KL) AS phat
+	FROM t_BIENBAN
+	INNER JOIN t_QUYDINH ON t_BIENBAN.MA_QD = t_QUYDINH.MA_QD
+	GROUP BY MA_NV) as phat
+ON tien_cong.MA_NV = phat.MA_NV
+-------------------test-----------
+INSERT INTO t_PHIEUNHAP VALUES
+('PN005', '2023-06-23', 'Tran Anh Dung', 'NCC02', 'NV02')
+INSERT INTO t_NHAP VALUES
+('PN005', 'BG001', '80', '30000'),
+('PN005', 'BG002', '50', '120000')
+SELECT * 
+FROM t_PHIEUNHAP
+INNER JOIN t_NHAP
+ON t_NHAP.MA_PHIEU = t_PHIEUNHAP.MA_PHIEU
+
+UPDATE t_NHAP 
+SET MA_SP = 'BK001'
+WHERE MA_PHIEU ='PN004'
+SELECT * 
+FROM t_PHIEUNHAP
+INNER JOIN t_NHAP
+ON t_NHAP.MA_PHIEU = t_PHIEUNHAP.MA_PHIEU
+
+SELECT SUM(TONG_HD) AS TONG
+FROM t_HOADON
+WHERE THOI_GIAN >= '2023-10-05' AND THOI_GIAN <= '2023-11-05'
+
+SELECT t_CHAMCONG.MA_NV ,SUM(t_CALAMVIEC.TIEN_CONG) AS Tong_Tien_Tong 
+FROM t_CHAMCONG
+INNER JOIN t_CALAMVIEC ON t_CHAMCONG.TEN_CA = t_CALAMVIEC.TEN_CA
+GROUP BY t_CHAMCONG.MA_NV
